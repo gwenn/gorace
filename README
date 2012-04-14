@@ -1,0 +1,19 @@
+Application to track lap's times by team.
+
+Dependencies
+------------
+ * Go
+ * SQLite
+
+Todos
+-----
+ * Time log updating/deleting (modal with ajax form: (old_team_id, old_time) => (new_team_id, new_time) / _ + page content update)
+ * Time log plotting
+ * Race Start time edit
+ * Team Add/Remove/Edit
+ * Navigation menus
+ * Ajax error handling
+
+Plotting
+--------
+https://github.com/ajstarks/svgo

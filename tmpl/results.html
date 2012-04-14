@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Results</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico"/>
+</head>
+<body>
+<div class="container-fluid">
+  <div class="row-fluid">
+    <div class="span12">
+      <h1>Results</h1>
+      <table id="time_logs" class="table table-condensed table-bordered">
+        <thead>
+          <tr>
+            <th class="span1">Rank</th>
+            <th>Name</th>
+            <th>Number</th>
+            <th>Nb Lap</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range .}}<tr>
+            <td>{{.Rank}}</td>
+            <td>{{.Team.Name | html}}</td>
+            <td>{{.Team.Number}}</td>
+            <td>{{.NbLap}}</td>
+            <td>{{.Time}}</td>
+          </tr>{{end}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>
