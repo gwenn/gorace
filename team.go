@@ -1,11 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gwenn/gosqlite"
 	"sync"
 )
 
-const TEAM_QUERY = `SELECT id, number, name FROM team ORDER BY number`
+const (
+	TEAM_QUERY  = `SELECT id, number, name FROM team ORDER BY number`
+	TEAM_INSERT = `INSERT INTO team (number, name) VALUES (?, ?)`
+	TEAM_UPDATE = `UPDATE team SET number = ? and name = ? WHERE id = ?`
+	TEAM_DELETE = `DELETE FROM team WHERE id = ?`
+)
 
 type Team struct {
 	Id     int
@@ -78,4 +84,55 @@ func loadTeams(db *sqlite.Conn) ([]*Team, error) {
 
 	tracef("Loaded %d teams.\n", len(teams))
 	return teams, nil
+}
+
+func addTeam(db *sqlite.Conn, number int, name string) (id int64, err error) {
+	tracef("Adding team (%d, %s)\n", number, name)
+	s, err := db.Prepare(TEAM_INSERT)
+	if err != nil {
+		return
+	}
+	defer s.Finalize()
+	id, err = s.Insert(number, name)
+	if err != nil {
+		return
+	}
+	tracef("Team (%d, %s) added\n", number, name)
+	return
+}
+
+func updateTeam(db *sqlite.Conn, id int, number int, name string) (err error) {
+	tracef("Updating team (%d, %d, %s)\n", id, number, name)
+	s, err := db.Prepare(TEAM_UPDATE)
+	if err != nil {
+		return
+	}
+	defer s.Finalize()
+	n, err := s.ExecDml(number, name, id)
+	if err != nil {
+		return
+	} else if n != 1 {
+		err = fmt.Errorf("No change while updating team (%d, %d, %s)\n", id, number, name)
+		return
+	}
+	tracef("Team (%d, %d, %s) updated\n", id, number, name)
+	return
+}
+
+func deleteTeam(db *sqlite.Conn, id int) (err error) {
+	tracef("Deleting team (%d)\n", id)
+	s, err := db.Prepare(TEAM_DELETE)
+	if err != nil {
+		return
+	}
+	defer s.Finalize()
+	n, err := s.ExecDml(id)
+	if err != nil {
+		return
+	} else if n != 1 {
+		err = fmt.Errorf("No change while deleting team (%d)\n", id)
+		return
+	}
+	tracef("Team (%d) deleted\n", id)
+	return
 }

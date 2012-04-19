@@ -44,7 +44,7 @@ func saveRace(db *sqlite.Conn, time string) (err error) {
 	if err != nil {
 		return
 	} else if n != 1 {
-		err = fmt.Errorf("No change while saving race (%s)", time)
+		err = fmt.Errorf("No change while saving race (%s)\n", time)
 		return
 	}
 	tracef("Race (%s) saved\n", time)

@@ -7,9 +7,9 @@ import (
 )
 
 const (
-	TIME_LOG_CREATE = `INSERT INTO time_log VALUES (?, ?)`
-	//	TIME_LOG_UPDATE  = `UPDATE time_log SET team_id = ?, time = ? WHERE team_id = ? AND time = ?`
-	//	TIME_LOG_DELETE  = `DELETE FROM time_log WHERE team_id = ? AND time = ?`
+	TIME_LOG_CREATE  = `INSERT INTO time_log VALUES (?, ?)`
+	TIME_LOG_UPDATE  = `UPDATE time_log SET time = ? WHERE team_id = ? AND time = ?`
+	TIME_LOG_DELETE  = `DELETE FROM time_log WHERE team_id = ? AND time = ?`
 	TIME_LOG_BY_TEAM = `SELECT time FROM time_log WHERE team_id = ? ORDER BY time desc`
 	TIME_LOG_QUERY   = `SELECT tl.team_id, tl.time
 FROM time_log tl
@@ -47,7 +47,7 @@ func saveTimeLogs(db *sqlite.Conn, teamIds []int, time string) (err error) {
 		if err != nil {
 			return
 		} else if n != 1 {
-			err = fmt.Errorf("No change while saving time log (%d, %s)", teamId, time)
+			err = fmt.Errorf("No change while saving time log (%d, %s)\n", teamId, time)
 			return
 		}
 	}
@@ -128,4 +128,40 @@ func loadTimeLogs(db *sqlite.Conn, limit int) ([]TimeLog, error) {
 	}
 	tracef("Loaded %d time logs.\n", len(timeLogs))
 	return timeLogs, nil
+}
+
+func updateTimeLog(db *sqlite.Conn, teamId int, oldTime, newTime string) (err error) {
+	tracef("Updating time log (%d, %s, %s)\n", teamId, oldTime, newTime)
+	s, err := db.Prepare(TIME_LOG_UPDATE)
+	if err != nil {
+		return
+	}
+	defer s.Finalize()
+	n, err := s.ExecDml(newTime, teamId, oldTime)
+	if err != nil {
+		return
+	} else if n != 1 {
+		err = fmt.Errorf("No change while updating time log (%d, %s, %s)\n", teamId, oldTime, newTime)
+		return
+	}
+	tracef("Time log (%d, %s, %s) updated\n", teamId, oldTime, newTime)
+	return
+}
+
+func deleteTimeLog(db *sqlite.Conn, teamId int, time string) (err error) {
+	tracef("Deleting time log (%d, %s)\n", teamId, time)
+	s, err := db.Prepare(TIME_LOG_DELETE)
+	if err != nil {
+		return
+	}
+	defer s.Finalize()
+	n, err := s.ExecDml(teamId, time)
+	if err != nil {
+		return
+	} else if n != 1 {
+		err = fmt.Errorf("No change while deleting time log (%d, %s)\n", teamId, time)
+		return
+	}
+	tracef("Time log (%d, %s) deleted\n", teamId, time)
+	return
 }

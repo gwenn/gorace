@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gwenn/gosqlite"
 	"html/template"
 	"net/http"
@@ -20,6 +21,7 @@ const (
 	TIME_LOGS_TMPL = "timelogs.html"
 	RESULTS_TMPL   = "results.html"
 	RACE_TMPL      = "race.html"
+	TEAMS_TMPL     = "teams.html"
 )
 
 func errorHandler(w http.ResponseWriter, err error) {
@@ -58,7 +60,7 @@ func addTimeLogs(w http.ResponseWriter, r *http.Request, db *sqlite.Conn) (err e
 			return
 		}
 	}
-	err = saveTimeLogs(db, teamIds, time[0])
+	err = saveTimeLogs(db, teamIds, time[0]) // TODO check time format
 	if err != nil {
 		return
 	}
@@ -108,8 +110,33 @@ func displayTimeLogs(w http.ResponseWriter, r *http.Request, db *sqlite.Conn) (e
 	return
 }
 
-func fixTimeLog(w http.ResponseWriter, r *http.Request, db *sqlite.Conn) (err error) {
-	return // TODO update or delete
+func updateTimeLogHandler(w http.ResponseWriter, r *http.Request, db *sqlite.Conn) (err error) {
+	teamId, err := parseTeamId(r, "team")
+	if err != nil {
+		return
+	}
+	oldTime, err := parseTime(r, "old_time")
+	if err != nil {
+		return
+	}
+	newTime, err := parseTime(r, "new_time")
+	if err != nil {
+		return
+	}
+	err = updateTimeLog(db, teamId, oldTime, newTime)
+	return
+}
+func deleteTimeLogHandler(w http.ResponseWriter, r *http.Request, db *sqlite.Conn) (err error) {
+	teamId, err := parseTeamId(r, "team")
+	if err != nil {
+		return
+	}
+	time, err := parseTime(r, "time")
+	if err != nil {
+		return
+	}
+	err = deleteTimeLog(db, teamId, time)
+	return
 }
 
 func displayResults(w http.ResponseWriter, r *http.Request, db *sqlite.Conn) (err error) {
@@ -131,13 +158,8 @@ func displayRace(w http.ResponseWriter, r *http.Request, db *sqlite.Conn) (err e
 }
 
 func setStartTime(w http.ResponseWriter, r *http.Request, db *sqlite.Conn) (err error) {
-	err = r.ParseForm()
+	time, err := parseTime(r, "start_time")
 	if err != nil {
-		return
-	}
-	time := r.FormValue("start_time")
-	if len(time) == 0 {
-		err = errors.New("Missing 'start_time' value")
 		return
 	}
 	err = saveRace(db, time)
@@ -145,6 +167,92 @@ func setStartTime(w http.ResponseWriter, r *http.Request, db *sqlite.Conn) (err 
 		return
 	}
 	http.Redirect(w, r, "/laps", http.StatusFound)
+	return
+}
+
+func displayTeams(w http.ResponseWriter, r *http.Request, db *sqlite.Conn) (err error) {
+	teams, err := loadTeams(db)
+	if err != nil {
+		return
+	}
+	err = templates.ExecuteTemplate(w, TEAMS_TMPL, teams)
+	return
+}
+func addTeamHandler(w http.ResponseWriter, r *http.Request, db *sqlite.Conn) (err error) {
+	number, name, err := parseTeamNumberAndName(r)
+	if err != nil {
+		return
+	}
+	id, err := addTeam(db, number, name)
+	if err != nil {
+		return
+	}
+	b, err := json.Marshal(id)
+	if err != nil {
+		return
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Write(b)
+	return
+}
+func updateTeamHandler(w http.ResponseWriter, r *http.Request, db *sqlite.Conn) (err error) {
+	id, err := parseTeamId(r, "id")
+	if err != nil {
+		return
+	}
+	number, name, err := parseTeamNumberAndName(r)
+	if err != nil {
+		return
+	}
+	err = updateTeam(db, id, number, name)
+	return
+}
+func deleteTeamHandler(w http.ResponseWriter, r *http.Request, db *sqlite.Conn) (err error) {
+	id, err := parseTeamId(r, "id")
+	if err != nil {
+		return
+	}
+	err = deleteTeam(db, id)
+	return
+}
+func parseTeamNumberAndName(r *http.Request) (number int, name string, err error) {
+	numberValue := r.FormValue("number")
+	if len(numberValue) == 0 {
+		err = errors.New("Missing 'number' value")
+		return
+	}
+	number, err = strconv.Atoi(numberValue)
+	if err != nil {
+		warn("Invalid team number: %q (%s)\n", numberValue, err)
+		return
+	}
+	name = r.FormValue("name")
+	if len(name) == 0 {
+		err = errors.New("Missing 'name' value")
+		return
+	}
+	return
+}
+func parseTeamId(r *http.Request, key string) (id int, err error) {
+	idValue := r.FormValue(key)
+	if len(idValue) == 0 {
+		err = fmt.Errorf("Missing %q value", key)
+		return
+	}
+	id, err = strconv.Atoi(idValue)
+	if err != nil {
+		warn("Invalid team id: %q (%s)\n", idValue, err)
+		return
+	}
+	return
+}
+func parseTime(r *http.Request, key string) (time string, err error) {
+	time = r.FormValue(key)
+	if len(time) == 0 {
+		err = fmt.Errorf("Missing %q value", key)
+		return
+	}
+	// TODO check format
 	return
 }
 
@@ -167,7 +275,8 @@ var templates = template.Must(template.ParseFiles(
 	path.Join(TMPL_PATH, LAPS_TMPL),
 	path.Join(TMPL_PATH, TIME_LOGS_TMPL),
 	path.Join(TMPL_PATH, RESULTS_TMPL),
-	path.Join(TMPL_PATH, RACE_TMPL)))
+	path.Join(TMPL_PATH, RACE_TMPL),
+	path.Join(TMPL_PATH, TEAMS_TMPL)))
 
 func main() {
 	fileServer := http.FileServer(http.Dir(STATIC_PATH))
@@ -175,11 +284,17 @@ func main() {
 
 	http.HandleFunc("/laps", makeHandler(lapsHandler))
 	http.HandleFunc("/timelogs/add", makeHandler(addTimeLogs))
-	http.HandleFunc("/timelogs/list", makeHandler(displayTimeLogs))
-	http.HandleFunc("/timelogs/fix", makeHandler(fixTimeLog))
+	http.HandleFunc("/timelogs", makeHandler(displayTimeLogs))
+	http.HandleFunc("/timelogs/update", makeHandler(updateTimeLogHandler))
+	http.HandleFunc("/timelogs/delete", makeHandler(deleteTimeLogHandler))
 	http.HandleFunc("/results", makeHandler(displayResults))
+	// admin pages
 	http.HandleFunc("/race", makeHandler(displayRace))
 	http.HandleFunc("/race/start", makeHandler(setStartTime))
+	http.HandleFunc("/teams", makeHandler(displayTeams))
+	http.HandleFunc("/teams/add", makeHandler(addTeamHandler))
+	http.HandleFunc("/teams/update", makeHandler(updateTeamHandler))
+	http.HandleFunc("/teams/delete", makeHandler(deleteTeamHandler))
 
 	var interrupted = make(chan os.Signal)
 	go func() {
