@@ -99,6 +99,14 @@ func lapTime(start, end string) (lt string) {
 	lt = endTime.Sub(startTime).String()
 	return
 }
+func checkTime(t string) (err error) {
+	_, err = time.Parse(TIME_FORMAT, t)
+	if err != nil {
+		warn("Invalid time %q\n", t)
+		return
+	}
+	return
+}
 
 func loadTimeLogs(db *sqlite.Conn, limit int) ([]TimeLog, error) {
 	trace("Loading time logs...")

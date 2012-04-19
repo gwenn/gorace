@@ -47,6 +47,10 @@ func addTimeLogs(w http.ResponseWriter, r *http.Request, db *sqlite.Conn) (err e
 		err = errors.New("Missing 'time' value")
 		return
 	}
+	err = checkTime(time[0])
+	if err != nil {
+		return
+	}
 	teams := r.Form["teams"]
 	if len(teams) == 0 || len(teams[0]) == 0 {
 		err = errors.New("Missing 'teams' value(s)")
@@ -60,7 +64,7 @@ func addTimeLogs(w http.ResponseWriter, r *http.Request, db *sqlite.Conn) (err e
 			return
 		}
 	}
-	err = saveTimeLogs(db, teamIds, time[0]) // TODO check time format
+	err = saveTimeLogs(db, teamIds, time[0])
 	if err != nil {
 		return
 	}
@@ -252,7 +256,7 @@ func parseTime(r *http.Request, key string) (time string, err error) {
 		err = fmt.Errorf("Missing %q value", key)
 		return
 	}
-	// TODO check format
+	err = checkTime(time)
 	return
 }
 
