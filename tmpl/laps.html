@@ -61,7 +61,7 @@
   </div>
 </div>
 <script src="/js/jquery-1.7.2.min.js"></script>
-<script type="text/javascript" language="javascript">
+<script type="text/javascript">
   $(function() {
     $("#time_log").submit(function() {
       $.post("/timelogs/add", $(this).serialize(),
@@ -82,8 +82,8 @@
             tbody.find("tr:last").remove();
           }
         }
-      ).error(function() {
-        alert("error"); // FIXME
+      ).error(function(e) {
+        alert(e.responseText);
       });
       return false;
     });

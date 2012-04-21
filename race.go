@@ -22,10 +22,7 @@ func loadRace(db *sqlite.Conn) (*Race, error) {
 	}
 	defer s.Finalize()
 	var r *Race = &Race{}
-	err = s.Select(func(s *sqlite.Stmt) (err error) {
-		err = s.Scan(&r.StartTime)
-		return
-	})
+	_, err = s.SelectOneRow(&r.StartTime)
 	if err != nil {
 		return nil, err
 	}

@@ -200,7 +200,7 @@ func addTeamHandler(w http.ResponseWriter, r *http.Request, db *sqlite.Conn) (er
 	return
 }
 func updateTeamHandler(w http.ResponseWriter, r *http.Request, db *sqlite.Conn) (err error) {
-	id, err := parseTeamId(r, "id")
+	id, err := parseTeamId(r, "tid")
 	if err != nil {
 		return
 	}
@@ -212,7 +212,7 @@ func updateTeamHandler(w http.ResponseWriter, r *http.Request, db *sqlite.Conn) 
 	return
 }
 func deleteTeamHandler(w http.ResponseWriter, r *http.Request, db *sqlite.Conn) (err error) {
-	id, err := parseTeamId(r, "id")
+	id, err := parseTeamId(r, "tid")
 	if err != nil {
 		return
 	}
@@ -220,7 +220,7 @@ func deleteTeamHandler(w http.ResponseWriter, r *http.Request, db *sqlite.Conn) 
 	return
 }
 func parseTeamNumberAndName(r *http.Request) (number int, name string, err error) {
-	numberValue := r.FormValue("number")
+	numberValue := r.FormValue("tnumber")
 	if len(numberValue) == 0 {
 		err = errors.New("Missing 'number' value")
 		return
@@ -230,7 +230,7 @@ func parseTeamNumberAndName(r *http.Request) (number int, name string, err error
 		warn("Invalid team number: %q (%s)\n", numberValue, err)
 		return
 	}
-	name = r.FormValue("name")
+	name = r.FormValue("tname")
 	if len(name) == 0 {
 		err = errors.New("Missing 'name' value")
 		return
@@ -286,16 +286,16 @@ func main() {
 	fileServer := http.FileServer(http.Dir(STATIC_PATH))
 	http.Handle("/", fileServer)
 
-	http.HandleFunc("/laps", makeHandler(lapsHandler))
+	http.HandleFunc("/laps", makeHandler(lapsHandler)) // TODO edit dialog
 	http.HandleFunc("/timelogs/add", makeHandler(addTimeLogs))
-	http.HandleFunc("/timelogs", makeHandler(displayTimeLogs))
+	http.HandleFunc("/timelogs", makeHandler(displayTimeLogs)) // TODO edit dialog
 	http.HandleFunc("/timelogs/update", makeHandler(updateTimeLogHandler))
 	http.HandleFunc("/timelogs/delete", makeHandler(deleteTimeLogHandler))
 	http.HandleFunc("/results", makeHandler(displayResults))
 	// admin pages
 	http.HandleFunc("/race", makeHandler(displayRace))
 	http.HandleFunc("/race/start", makeHandler(setStartTime))
-	http.HandleFunc("/teams", makeHandler(displayTeams))
+	http.HandleFunc("/teams", makeHandler(displayTeams)) // TODO edit dialog
 	http.HandleFunc("/teams/add", makeHandler(addTeamHandler))
 	http.HandleFunc("/teams/update", makeHandler(updateTeamHandler))
 	http.HandleFunc("/teams/delete", makeHandler(deleteTeamHandler))

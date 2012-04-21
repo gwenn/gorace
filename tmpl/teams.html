@@ -12,13 +12,129 @@
   <div class="row-fluid">
     <div class="span12">
       <h1>Teams</h1>
+      <table id="teams" class="table table-condensed table-bordered">
+        <thead>
+          <tr>
+            <th style="width: 18px"><a href="#" onclick="return addTeam()"><i class="icon-plus"></i></a></th>
+            <th>Number</th>
+            <th>Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range .}}<tr data-tid="{{.Id}}">
+            <td><a href="#" onclick="return editTeam(this)"><i class="icon-edit"></i></a></td>
+            <td>{{.Number}}</td>
+            <td>{{.Name | html}}</td>
+          </tr>{{end}}
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
+<div class="modal hide fade" id="editDialog">
+  <form id="team">
+    <div class="modal-header">
+      <a href="#" class="close" data-dismiss="modal">&times;</a>
+      <h3>Team</h3>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="tid" name="tid"/>
+      <div class="control-group">
+        <label class="control-label" for="tnumber">Number</label>
+        <div class="controls">
+          <input class="input" id="tnumber" name="tnumber" type="text" required="required"/>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="tname">Name</label>
+        <div class="controls">
+          <input class="input" id="tname" name="tname" type="text" required="required"/>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <button type="submit" id="delete" class="btn btn-danger">Delete</button>
+      <button class="btn" data-dismiss="modal">Cancel</button>
+    </div>
+  </form>
+</div>
 <script src="/js/jquery-1.7.2.min.js"></script>
-<script type="text/javascript" language="javascript">
+<script src="/js/bootstrap.min.js"></script>
+<script type="text/javascript">
   $(function() {
+    var deleting = 0;
+    $("#delete").click(function(e) {
+      deleting = 1;
+    });
+    $("#team").submit(function(e) { // TODO Restful
+      var url, success;
+      if (deleting) {
+        deleting = 0;
+        url = "/teams/delete";
+        success = deleteRow;
+      } else if ($("#tid").val()) {
+        url = "/teams/update";
+        success = updateRow;
+      } else {
+        url = "/teams/add";
+        success = addRow;
+      }
+      $.post(url, $(this).serialize(), success
+      ).error(function(e) {
+        alert(e.responseText);
+      });
+      return false;
+    });
+    function deleteRow() {
+      $('#editDialog').modal('hide');
+      var tid = $("#tid").val();
+      var row = $("tr").filter(function() {return $(this).data("tid")==tid;});
+      row.remove();
+    }
+    function updateRow() {
+      $('#editDialog').modal('hide');
+      var tid = $("#tid").val();
+      var row = $("tr").filter(function() {return $(this).data("tid")==tid;});
+      row.find("td:nth-child(2)").text($("#tnumber").val());
+      row.find("td:nth-child(3)").text($("#tname").val());
+    }
+    function addRow(tid) {
+      $('#editDialog').modal('hide');
+      var tbody = $("#teams tbody");
+      var newRow = $("<tr/>");
+      newRow.data("tid", tid);
+      newRow.append(
+        $('<td><a href="#" onclick="return editTeam(this)"><i class="icon-edit"></i></a></td>'),
+        $("<td/>").text($("#tnumber").val()),
+        $("<td/>").text($("#tname").val())
+        );
+      tbody.append(newRow);
+    }
   });
+  function addTeam() {
+    showDialog('');
+    return false;
+  }
+  function editTeam(b) {
+    var row = $(b).closest("tr");
+    var id = row.data("tid");
+    var number = row.find("td:nth-child(2)").text();
+    var name = row.find("td:nth-child(3)").text();
+    showDialog(id, number, name);
+    return false;
+  }
+  function showDialog(id, number, name) {
+    $("#tid").val(id);
+    $("#tnumber").val(number);
+    $("#tname").val(name);
+    if (id) {
+      $("#delete").show();
+    } else {
+      $("#delete").hide();
+    }
+    $('#editDialog').modal('show');
+  }
 </script>
 </body>
 </html>
