@@ -288,9 +288,9 @@ func main() {
 	fileServer := http.FileServer(http.Dir(STATIC_PATH))
 	http.Handle("/", fileServer)
 
-	http.HandleFunc("/laps", makeHandler(lapsHandler)) // TODO edit dialog
+	http.HandleFunc("/laps", makeHandler(lapsHandler))
 	http.HandleFunc("/timelogs/add", makeHandler(addTimeLogs))
-	http.HandleFunc("/timelogs", makeHandler(displayTimeLogs)) // TODO edit dialog
+	http.HandleFunc("/timelogs", makeHandler(displayTimeLogs))
 	http.HandleFunc("/timelogs/update", makeHandler(updateTimeLogHandler))
 	http.HandleFunc("/timelogs/delete", makeHandler(deleteTimeLogHandler))
 	http.HandleFunc("/results", makeHandler(displayResults))

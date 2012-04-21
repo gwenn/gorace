@@ -12,7 +12,7 @@
   <div class="row-fluid">
     <div class="span12">
       <h1>Laps</h1>
-      <form id="time_log" class="well">
+      <form id="lap" class="well">
         <div class="row-fluid">
           <div class="span4">
             <select class="input" id="teams" name="teams" multiple="multiple" size="15">
@@ -63,15 +63,16 @@
 <script src="/js/jquery-1.7.2.min.js"></script>
 <script type="text/javascript">
   $(function() {
-    $("#time_log").submit(function() {
+    $("#lap").submit(function() {
       $.post("/timelogs/add", $(this).serialize(),
         function(timeLogs) {
-          //$("#time_log").reset();
+          //$("#lap").reset();
           var tbody = $("#time_logs tbody");
           $.each(timeLogs, function(i, timeLog) {
             var newRow = $("<tr/>");
+            newRow.data("team", timeLog.Team.Id);
             newRow.append(
-              $('<td><i class="icon-edit"></i></td>'),
+              $('<td><a href="#"><i class="icon-edit"></i></a></td>'),
               $("<td/>").text(timeLog.Team.Number),
               $("<td/>").text(timeLog.Team.Name),
               $("<td/>").text(timeLog.Time)
@@ -106,5 +107,6 @@
     });
   });
 </script>
+{{template "timelog_edit.html"}}
 </body>
 </html>
