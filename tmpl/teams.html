@@ -22,7 +22,7 @@
         </thead>
         <tbody>
           {{range .}}<tr data-tid="{{.Id}}">
-            <td><a href="#" onclick="return editTeam(this)"><i class="icon-edit"></i></a></td>
+            <td><a href="#"><i class="icon-edit"></i></a></td>
             <td>{{.Number}}</td>
             <td>{{.Name | html}}</td>
           </tr>{{end}}
@@ -63,11 +63,20 @@
 <script src="/js/bootstrap.min.js"></script>
 <script type="text/javascript">
   $(function() {
+    $("#teams").on("click", "tbody tr td a", function(e) {
+      e.preventDefault();
+      var row = $(this).closest("tr");
+      var id = row.data("tid");
+      var number = row.find("td:nth-child(2)").text();
+      var name = row.find("td:nth-child(3)").text();
+      showDialog(id, number, name);
+    });
     var deleting = 0;
     $("#delete").click(function(e) {
       deleting = 1;
     });
     $("#team").submit(function(e) { // TODO Restful
+      e.preventDefault();
       var url, success;
       if (deleting) {
         deleting = 0;
@@ -84,7 +93,6 @@
       ).error(function(e) {
         alert(e.responseText);
       });
-      return false;
     });
     function deleteRow() {
       $('#editDialog').modal('hide');
@@ -105,7 +113,7 @@
       var newRow = $("<tr/>");
       newRow.data("tid", tid);
       newRow.append(
-        $('<td><a href="#" onclick="return editTeam(this)"><i class="icon-edit"></i></a></td>'),
+        $('<td><a href="#"><i class="icon-edit"></i></a></td>'),
         $("<td/>").text($("#tnumber").val()),
         $("<td/>").text($("#tname").val())
         );
@@ -114,14 +122,6 @@
   });
   function addTeam() {
     showDialog('');
-    return false;
-  }
-  function editTeam(b) {
-    var row = $(b).closest("tr");
-    var id = row.data("tid");
-    var number = row.find("td:nth-child(2)").text();
-    var name = row.find("td:nth-child(3)").text();
-    showDialog(id, number, name);
     return false;
   }
   function showDialog(id, number, name) {
