@@ -14,14 +14,15 @@ import (
 )
 
 const (
-	DB_PATH        = "db/race.sqlite"
-	STATIC_PATH    = "static"
-	TMPL_PATH      = "tmpl"
-	LAPS_TMPL      = "laps.html"
-	TIME_LOGS_TMPL = "timelogs.html"
-	RESULTS_TMPL   = "results.html"
-	RACE_TMPL      = "race.html"
-	TEAMS_TMPL     = "teams.html"
+	DB_PATH            = "db/race.sqlite"
+	STATIC_PATH        = "static"
+	TMPL_PATH          = "tmpl"
+	LAPS_TMPL          = "laps.html"
+	TIME_LOG_EDIT_TMPL = "timelog_edit.html"
+	TIME_LOGS_TMPL     = "timelogs.html"
+	RESULTS_TMPL       = "results.html"
+	RACE_TMPL          = "race.html"
+	TEAMS_TMPL         = "teams.html"
 )
 
 func errorHandler(w http.ResponseWriter, err error) {
@@ -277,6 +278,7 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, *sqlite.Conn) error
 
 var templates = template.Must(template.ParseFiles(
 	path.Join(TMPL_PATH, LAPS_TMPL),
+	path.Join(TMPL_PATH, TIME_LOG_EDIT_TMPL),
 	path.Join(TMPL_PATH, TIME_LOGS_TMPL),
 	path.Join(TMPL_PATH, RESULTS_TMPL),
 	path.Join(TMPL_PATH, RACE_TMPL),
