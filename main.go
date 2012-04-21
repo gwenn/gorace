@@ -135,7 +135,7 @@ func deleteTimeLogHandler(w http.ResponseWriter, r *http.Request, db *sqlite.Con
 	if err != nil {
 		return
 	}
-	time, err := parseTime(r, "time")
+	time, err := parseTime(r, "old_time")
 	if err != nil {
 		return
 	}
@@ -295,7 +295,7 @@ func main() {
 	// admin pages
 	http.HandleFunc("/race", makeHandler(displayRace))
 	http.HandleFunc("/race/start", makeHandler(setStartTime))
-	http.HandleFunc("/teams", makeHandler(displayTeams)) // TODO edit dialog
+	http.HandleFunc("/teams", makeHandler(displayTeams))
 	http.HandleFunc("/teams/add", makeHandler(addTeamHandler))
 	http.HandleFunc("/teams/update", makeHandler(updateTeamHandler))
 	http.HandleFunc("/teams/delete", makeHandler(deleteTeamHandler))

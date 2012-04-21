@@ -23,8 +23,8 @@
           </tr>
         </thead>
         <tbody>
-          {{range .}}<tr>
-            <td><i class="icon-edit"></i><!-- {{.Team.Id}} --></td>
+          {{range .}}<tr data-team="{{.Team.Id}}">
+            <td><a href="#"><i class="icon-edit"></i></a></td>
             <td>{{.Team.Number}}</td>
             <td>{{.Team.Name | html}}</td>
             <td>{{.Time}}</td>
@@ -35,5 +35,81 @@
     </div>
   </div>
 </div>
+<div class="modal hide fade" id="editDialog">
+  <form id="time_log">
+    <div class="modal-header">
+      <a href="#" class="close" data-dismiss="modal">&times;</a>
+      <h3>Time</h3>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="team" name="team"/>
+      <input type="hidden" id="old_time" name="old_time"/>
+      <div class="control-group">
+        <label class="control-label" for="new_time">Time</label>
+        <div class="controls">
+          <input class="input" id="new_time" name="new_time" type="text" required="required"/>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <button type="submit" id="delete" class="btn btn-danger">Delete</button>
+      <button class="btn" data-dismiss="modal">Cancel</button>
+    </div>
+  </form>
+</div>
+<script src="/js/jquery-1.7.2.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+  $(function() {
+    $("#time_logs").on("click", "tbody tr td a", function(e) {
+      e.preventDefault();
+      var row = $(this).closest("tr");
+      var team = row.data("team");
+      var time = row.find("td:nth-child(4)").text();
+      showDialog(team, time);
+    });
+    function showDialog(team, time) {
+      $("#team").val(team);
+      $("#old_time").val(time);
+      $("#new_time").val(time);
+      $('#editDialog').modal('show');
+    }
+
+    var deleting = 0;
+    $("#delete").click(function(e) {
+      deleting = 1;
+    });
+    $("#time_log").submit(function(e) { // TODO Restful
+      e.preventDefault();
+      var url, success;
+      if (deleting) {
+        deleting = 0;
+        url = "/timelogs/delete";
+        success = deleteRow;
+      } else {
+        url = "/timelogs/update";
+        success = updateRow;
+      }
+      $.post(url, $(this).serialize(), success
+      ).error(function(e) {
+        alert(e.responseText);
+      });
+    });
+    function deleteRow() {
+      $('#editDialog').modal('hide');
+      var team = $("#team").val();
+      var row = $("tr").filter(function() {return $(this).data("team")==team;});
+      row.remove();
+    }
+    function updateRow() {
+      $('#editDialog').modal('hide');
+      var team = $("#team").val();
+      var row = $("tr").filter(function() {return $(this).data("team")==team;});
+      row.find("td:nth-child(4)").text($("#new_time").val());
+      row.find("td:nth-child(5)").text(''); // TODO recompute?
+    }
+  });
+</script>
 </body>
 </html>

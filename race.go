@@ -7,7 +7,7 @@ import (
 
 const (
 	RACE_QUERY  = `SELECT time FROM start_time`
-	RACE_UPDATE = `REPLACE INTO start_time VALUES (?)`
+	RACE_UPDATE = `UPDATE start_time SET time = ?`
 )
 
 type Race struct {

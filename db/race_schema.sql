@@ -12,6 +12,7 @@ CREATE TABLE team (
 CREATE TABLE start_time (
   time TEXT NOT NULL -- HH:MM:SS
 );
+INSERT INTO start_time VALUES ('00:00:00');
 
 CREATE TABLE time_log (
   team_id INTEGER NOT NULL,
@@ -27,7 +28,23 @@ CREATE TABLE result (
   FOREIGN KEY (team_id) REFERENCES team(id)
 );
 
-CREATE TRIGGER result_generation AFTER INSERT ON time_log
+CREATE TRIGGER result_generation1 AFTER INSERT ON time_log
+BEGIN
+  REPLACE INTO result
+    SELECT team_id,
+      count(1),
+      max(time)
+      FROM time_log GROUP BY team_id;
+END;
+CREATE TRIGGER result_generation2 AFTER UPDATE ON time_log
+BEGIN
+  REPLACE INTO result
+    SELECT team_id,
+      count(1),
+      max(time)
+      FROM time_log GROUP BY team_id;
+END;
+CREATE TRIGGER result_generation3 AFTER DELETE ON time_log
 BEGIN
   REPLACE INTO result
     SELECT team_id,
