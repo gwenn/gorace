@@ -23,6 +23,7 @@ const (
 	RESULTS_TMPL       = "results.html"
 	RACE_TMPL          = "race.html"
 	TEAMS_TMPL         = "teams.html"
+	NAV_BAR_TMPL       = "navbar.html"
 )
 
 func errorHandler(w http.ResponseWriter, err error) {
@@ -282,7 +283,8 @@ var templates = template.Must(template.ParseFiles(
 	path.Join(TMPL_PATH, TIME_LOGS_TMPL),
 	path.Join(TMPL_PATH, RESULTS_TMPL),
 	path.Join(TMPL_PATH, RACE_TMPL),
-	path.Join(TMPL_PATH, TEAMS_TMPL)))
+	path.Join(TMPL_PATH, TEAMS_TMPL),
+	path.Join(TMPL_PATH, NAV_BAR_TMPL)))
 
 func main() {
 	fileServer := http.FileServer(http.Dir(STATIC_PATH))
