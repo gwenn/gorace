@@ -9,7 +9,7 @@ import (
 const (
 	TEAM_QUERY  = `SELECT id, number, name FROM team ORDER BY number`
 	TEAM_INSERT = `INSERT INTO team (number, name) VALUES (?, ?)`
-	TEAM_UPDATE = `UPDATE team SET number = ? and name = ? WHERE id = ?`
+	TEAM_UPDATE = `UPDATE team SET number = ?, name = ? WHERE id = ?`
 	TEAM_DELETE = `DELETE FROM team WHERE id = ?`
 )
 
