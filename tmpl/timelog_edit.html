@@ -24,8 +24,8 @@
 <script src="/js/bootstrap.min.js"></script>
 <script type="text/javascript">
   $(function() {
-    $("#time_logs").on("click", "tbody tr td a", function(e) {
-      e.preventDefault();
+    $("#time_logs").on("click", "tbody > tr > td > a", function() {
+      event.preventDefault();
       var row = $(this).closest("tr");
       var team = row.data("team");
       var time = row.find("td:nth-child(4)").text();
@@ -39,11 +39,11 @@
     }
 
     var deleting = 0;
-    $("#delete").click(function(e) {
+    $("#delete").click(function() {
       deleting = 1;
     });
-    $("#time_log").submit(function(e) { // TODO Restful
-      e.preventDefault();
+    $("#time_log").submit(function() { // TODO Restful
+      event.preventDefault();
       var url, success;
       if (deleting) {
         deleting = 0;

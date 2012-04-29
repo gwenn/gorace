@@ -66,10 +66,11 @@
 <script type="text/javascript">
   $(function() {
     $("#lap").submit(function() {
+      event.preventDefault();
       $.post("/timelogs/add", $(this).serialize(),
         function(timeLogs) {
           //$("#lap").reset();
-          var tbody = $("#time_logs tbody");
+          var tbody = $("#time_logs > tbody");
           $.each(timeLogs, function(i, timeLog) {
             var newRow = $("<tr/>");
             newRow.data("team", timeLog.Team.Id);
@@ -88,9 +89,9 @@
       ).error(function(e) {
         alert(e.responseText);
       });
-      return false;
     });
     $("#tick").click(function(){
+      event.preventDefault();
       var now = new Date().toLocaleTimeString();
       $("#time").val(now);
       var times = $("#times");
@@ -101,7 +102,6 @@
       if (times.children("option").length > 10) {
         times.find("option:last").remove();
       }
-      return false;
     });
     $("#times").on("change", function(){
       var time = $(this).val();

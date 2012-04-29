@@ -17,7 +17,7 @@
       <table id="teams" class="table table-condensed table-bordered">
         <thead>
           <tr>
-            <th style="width: 18px"><a href="#" onclick="return addTeam()"><i class="icon-plus"></i></a></th>
+            <th style="width: 18px"><a href="#" onclick="addTeam()"><i class="icon-plus"></i></a></th>
             <th>Number</th>
             <th>Name</th>
           </tr>
@@ -65,8 +65,8 @@
 <script src="/js/bootstrap.min.js"></script>
 <script type="text/javascript">
   $(function() {
-    $("#teams").on("click", "tbody tr td a", function(e) {
-      e.preventDefault();
+    $("#teams").on("click", "tbody > tr > td:nth-child(1) > a", function() {
+      event.preventDefault();
       var row = $(this).closest("tr");
       var id = row.data("tid");
       var number = row.find("td:nth-child(2)").text();
@@ -74,11 +74,11 @@
       showDialog(id, number, name);
     });
     var deleting = 0;
-    $("#delete").click(function(e) {
+    $("#delete").click(function() {
       deleting = 1;
     });
-    $("#team").submit(function(e) { // TODO Restful
-      e.preventDefault();
+    $("#team").submit(function() { // TODO Restful
+      event.preventDefault();
       var url, success;
       if (deleting) {
         deleting = 0;
@@ -123,8 +123,8 @@
     }
   });
   function addTeam() {
+    event.preventDefault();
     showDialog('');
-    return false;
   }
   function showDialog(id, number, name) {
     $("#tid").val(id);

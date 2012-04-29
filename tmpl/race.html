@@ -38,9 +38,9 @@
 <script type="text/javascript">
   $(function() {
     $("#tick").click(function(){
+      event.preventDefault();
       var now = new Date().toLocaleTimeString();
       $("#start_time").val(now);
-      return false;
     });
   });
 </script>
