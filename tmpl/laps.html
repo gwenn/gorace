@@ -67,7 +67,7 @@
   $(function() {
     $("#lap").submit(function() {
       event.preventDefault();
-      $.post("/timelogs/add", $(this).serialize(),
+      $.post("/timelogs", $(this).serialize(),
         function(timeLogs) {
           //$("#lap").reset();
           var tbody = $("#time_logs > tbody");

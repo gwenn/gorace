@@ -77,22 +77,18 @@
     $("#delete").click(function() {
       deleting = 1;
     });
-    $("#team").submit(function() { // TODO Restful
+    $("#team").submit(function() {
       event.preventDefault();
-      var url, success;
+      var settings;
       if (deleting) {
         deleting = 0;
-        url = "/teams/delete";
-        success = deleteRow;
+        settings = {url: "/teams/" + $("#tid").val(), type: "DELETE", success: deleteRow};
       } else if ($("#tid").val()) {
-        url = "/teams/update";
-        success = updateRow;
+        settings = {url: "/teams", type: "PUT", data: $(this).serialize(), success: updateRow};
       } else {
-        url = "/teams/add";
-        success = addRow;
+        settings = {url: "/teams", type: "POST", data: $(this).serialize(), success: addRow};
       }
-      $.post(url, $(this).serialize(), success
-      ).error(function(e) {
+      $.ajax(settings).error(function(e) {
         alert(e.responseText);
       });
     });
