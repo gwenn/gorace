@@ -24,8 +24,8 @@
 <script src="/js/bootstrap.min.js"></script>
 <script type="text/javascript">
   $(function() {
-    $("#time_logs").on("click", "tbody > tr > td > a", function() {
-      event.preventDefault();
+    $("#time_logs").on("click", "tbody > tr > td > a", function(evt) {
+      evt.preventDefault();
       var row = $(this).closest("tr");
       var team = row.data("team");
       var time = row.find("td:nth-child(4)").text();
@@ -42,15 +42,15 @@
     $("#delete").click(function() {
       deleting = 1;
     });
-    $("#time_log").submit(function() {
-      event.preventDefault();
+    $("#time_log").submit(function(evt) {
+      evt.preventDefault();
       var settings;
       if (deleting) {
         deleting = 0;
         settings = {url: "/timelogs/" + $("#team").val() + "/" + encodeURIComponent($("#old_time").val()),
           type: "DELETE", success: deleteRow};
       } else {
-        settings = {url: "/timelogs", type: "PUT", data: $(this).serialize(), success: updateRow};
+        settings = {url: "/timelogs/", type: "PUT", data: $(this).serialize(), success: updateRow};
       }
       $.ajax(settings).error(function(e) {
         alert(e.responseText);

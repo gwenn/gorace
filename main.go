@@ -7,6 +7,7 @@ import (
 	"github.com/gwenn/gosqlite"
 	"html/template"
 	"net/http"
+	//	"net/http/httputil"
 	"os"
 	"os/signal"
 	"path"
@@ -267,6 +268,13 @@ func parseTime(time string) (string, error) {
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request, *sqlite.Conn) error) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		/*
+			dump, err := httputil.DumpRequest(r, true)
+			if err != nil {
+				errorHandler(w, err)
+			}
+			warn("Dump: %s\n", string(dump))
+		*/
 		db, err := getConn()
 		if err != nil {
 			errorHandler(w, err)

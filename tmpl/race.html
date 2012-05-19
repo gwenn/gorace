@@ -14,7 +14,7 @@
   <div class="row-fluid">
     <div class="span12">
       <h1>Race</h1>
-      <form id="race" action="/race" method="POST" class="well">
+      <form id="race" class="well">
         <div class="row-fluid">
           <div class="span4">
             <div class="row-fluid">
@@ -37,14 +37,14 @@
 <script src="/js/jquery-1.7.2.min.js"></script>
 <script type="text/javascript">
   $(function() {
-    $("#tick").click(function(){
-      event.preventDefault();
+    $("#tick").click(function(evt){
+      evt.preventDefault();
       var now = new Date().toLocaleTimeString();
       $("#start_time").val(now);
     });
-    $("#race").submit(function() {
-      event.preventDefault();
-      var settings = {url: "/race", type: "PUT", data: $(this).serialize()};
+    $("#race").submit(function(evt) {
+      evt.preventDefault();
+      var settings = {url: "/race/", type: "PUT", data: $(this).serialize()};
       $.ajax(settings).success(function(e) {
         window.location.replace("/laps");
       }).error(function(e) {

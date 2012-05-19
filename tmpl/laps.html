@@ -65,9 +65,9 @@
 <script src="/js/jquery-1.7.2.min.js"></script>
 <script type="text/javascript">
   $(function() {
-    $("#lap").submit(function() {
-      event.preventDefault();
-      $.post("/timelogs", $(this).serialize(),
+    $("#lap").submit(function(evt) {
+      evt.preventDefault();
+      $.post("/timelogs/", $(this).serialize(),
         function(timeLogs) {
           //$("#lap").reset();
           var tbody = $("#time_logs > tbody");
@@ -90,8 +90,8 @@
         alert(e.responseText);
       });
     });
-    $("#tick").click(function(){
-      event.preventDefault();
+    $("#tick").click(function(evt){
+      evt.preventDefault();
       var now = new Date().toLocaleTimeString();
       $("#time").val(now);
       var times = $("#times");

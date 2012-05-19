@@ -17,7 +17,7 @@
       <table id="teams" class="table table-condensed table-bordered">
         <thead>
           <tr>
-            <th style="width: 18px"><a href="#" onclick="addTeam()"><i class="icon-plus"></i></a></th>
+            <th style="width: 18px"><a href="#"><i class="icon-plus"></i></a></th>
             <th>Number</th>
             <th>Name</th>
           </tr>
@@ -26,7 +26,7 @@
           {{range .}}<tr data-tid="{{.Id}}">
             <td><a href="#"><i class="icon-edit"></i></a></td>
             <td>{{.Number}}</td>
-            <td><a href="/timelogs?team={{.Id}}">{{.Name | html}}</a></td>
+            <td><a href="/timelogs/?team={{.Id}}">{{.Name | html}}</a></td>
           </tr>{{end}}
         </tbody>
       </table>
@@ -65,8 +65,12 @@
 <script src="/js/bootstrap.min.js"></script>
 <script type="text/javascript">
   $(function() {
-    $("#teams").on("click", "tbody > tr > td:nth-child(1) > a", function() {
-      event.preventDefault();
+    $("#teams").on("click", "thead > tr > th:nth-child(1) > a", function(evt) {
+      evt.preventDefault();
+      showDialog('');
+    });
+    $("#teams").on("click", "tbody > tr > td:nth-child(1) > a", function(evt) {
+      evt.preventDefault();
       var row = $(this).closest("tr");
       var id = row.data("tid");
       var number = row.find("td:nth-child(2)").text();
@@ -77,16 +81,16 @@
     $("#delete").click(function() {
       deleting = 1;
     });
-    $("#team").submit(function() {
-      event.preventDefault();
+    $("#team").submit(function(evt) {
+      evt.preventDefault();
       var settings;
       if (deleting) {
         deleting = 0;
         settings = {url: "/teams/" + $("#tid").val(), type: "DELETE", success: deleteRow};
       } else if ($("#tid").val()) {
-        settings = {url: "/teams", type: "PUT", data: $(this).serialize(), success: updateRow};
+        settings = {url: "/teams/", type: "PUT", data: $(this).serialize(), success: updateRow};
       } else {
-        settings = {url: "/teams", type: "POST", data: $(this).serialize(), success: addRow};
+        settings = {url: "/teams/", type: "POST", data: $(this).serialize(), success: addRow};
       }
       $.ajax(settings).error(function(e) {
         alert(e.responseText);
@@ -118,10 +122,6 @@
       tbody.append(newRow);
     }
   });
-  function addTeam() {
-    event.preventDefault();
-    showDialog('');
-  }
   function showDialog(id, number, name) {
     $("#tid").val(id);
     $("#tnumber").val(number);
